@@ -1,0 +1,46 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudPipe Static Website Hosting
+
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+      VersioningConfiguration:
+        Status: Enabled
+
+      Tags:
+        - Key: Project
+          Value: CloudPipe
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadWebsite
+            Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${WebsiteBucket.Arn}/*'
+
+Outputs:
+  BucketName:
+    Description: S3 Bucket Name
+    Value: !Ref WebsiteBucket
+
+  WebsiteURL:
+    Description: Static Website URL
+    Value: !GetAtt WebsiteBucket.WebsiteURL
